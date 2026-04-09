@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+    
+    /* Animated background gradient */
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  }
+  
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/20 dark:bg-gray-800/20 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/20 shadow-xl;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  }
+  
+  .glass-card-dark {
+    background: rgba(17, 24, 39, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .metric-card {
+    @apply glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] hover:bg-white/30 dark:hover:bg-gray-800/30;
+    transform-style: preserve-3d;
+    position: relative;
+  }
+  
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .metric-card:hover::before {
+    opacity: 1;
+  }
+  
+  .glass-nav {
+    @apply bg-white/10 dark:bg-gray-800/10 backdrop-blur-xl border-b border-white/20 dark:border-gray-700/20;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  
+  .glass-button {
+    @apply px-4 py-2 rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .glass-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .glass-button:hover::before {
+    opacity: 1;
+  }
+  
+  .btn-primary {
+    @apply glass-button bg-primary-600/80 text-white hover:bg-primary-700/90 focus:ring-primary-500 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-secondary {
+    @apply glass-button bg-gray-200/50 text-gray-900 hover:bg-gray-300/70 dark:bg-gray-700/50 dark:text-gray-100 dark:hover:bg-gray-600/70;
+  }
+  
+  .btn-success {
+    @apply glass-button bg-green-600/80 text-white hover:bg-green-700/90 focus:ring-green-500 shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-danger {
+    @apply glass-button bg-red-600/80 text-white hover:bg-red-700/90 focus:ring-red-500 shadow-lg hover:shadow-xl;
+  }
+  
+  .glass-input {
+    @apply bg-white/10 dark:bg-gray-800/10 backdrop-blur-md border border-white/20 dark:border-gray-700/20 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+  
+  .glass-input:focus {
+    @apply bg-white/20 dark:bg-gray-800/20 border-primary-500/50 shadow-lg;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .glass-select {
+    @apply glass-input appearance-none cursor-pointer;
+  }
+  
+  .floating-glass {
+    @apply glass-card;
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Performance optimizations for glassmorphism */
+  .glass-optimized {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    .glass-card,
+    .glass-button,
+    .glass-input,
+    .glass-nav {
+      animation: none !important;
+      transition: none !important;
+    }
+    
+    .metric-card:hover {
+      transform: none !important;
+    }
+    
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 0% 50%; }
+    }
+  }
+  
+  /* Hardware acceleration for smooth animations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+}
