@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel-X QR Code</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        #qrcode {
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            display: inline-block;
+            min-height: 240px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .url {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #495057;
+        }
+        
+        .info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        
+        .info h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        
+        .info ol {
+            margin-left: 20px;
+        }
+        
+        .info li {
+            margin: 8px 0;
+        }
+        
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        
+        .button:hover {
+            background: #45a049;
+        }
+        
+        .button.secondary {
+            background: #ff9800;
+        }
+        
+        .button.secondary:hover {
+            background: #f57c00;
+        }
+        
+        .fallback-qr {
+            width: 200px;
+            height: 200px;
+            background: #f0f0f0;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> Sentinel-X Mobile Test </h1>
+        
+        <div id="qrcode">
+            <div class="fallback-qr">
+                <div>QR Code Loading...</div>
+                <div style="font-size: 10px; margin-top: 10px;">URL: <span id="fallback-url"></span></div>
+            </div>
+        </div>
+        
+        <div class="url" id="url-display">
+            Generating QR Code...
+        </div>
+        
+        <div class="info">
+            <h3>How to Test:</h3>
+            <ol>
+                <li>Scan this QR code with your mobile device</li>
+                <li>Open Sentinel-X in your mobile browser</li>
+                <li>Click "Start" to begin packet capture</li>
+                <li>Generate network traffic (browse, use apps)</li>
+                <li>Watch real-time packet capture data</li>
+            </ol>
+        </div>
+        
+        <div class="button" onclick="testConnectivity()">Test Connectivity</div>
+        <div class="button secondary" onclick="generateTraffic()">Generate Test Traffic</div>
+        
+        <div id="status" class="status info">
+            Ready for mobile testing
+        </div>
+    </div>
+
+    <script>
+        // Get the current URL
+        const currentUrl = window.location.protocol + '//' + window.location.hostname + ':3000';
+        
+        // Display URL immediately
+        document.getElementById('url-display').innerHTML = `
+            <strong>Scan to access:</strong><br>
+            ${currentUrl}
+        `;
+        
+        document.getElementById('fallback-url').textContent = currentUrl;
+        
+        // Try multiple QR code libraries
+        function generateQRCode() {
+            const qrContainer = document.getElementById('qrcode');
+            
+            // Method 1: Try qrcode-generator library
+            try {
+                const typeNumber = 4;
+                const errorCorrectionLevel = 'L';
+                const qr = qrcode(typeNumber, errorCorrectionLevel);
+                qr.addData(currentUrl);
+                qr.make();
+                
+                const qrImage = qr.createDataURL(6, 0);
+                qrContainer.innerHTML = `<img src="${qrImage}" alt="QR Code" style="border-radius: 10px;" />`;
+                console.log('QR Code generated with qrcode-generator');
+                return;
+            } catch (error) {
+                console.log('qrcode-generator failed:', error);
+            }
+            
+            // Method 2: Try qrcode library
+            try {
+                QRCode.toCanvas(qrContainer, currentUrl, {
+                    width: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#FFFFFF'
+                    }
+                }, function (error) {
+                    if (error) {
+                        console.log('qrcode library failed:', error);
+                        showFallback();
+                    } else {
+                        console.log('QR Code generated with qrcode library');
+                    }
+                });
+                return;
+            } catch (error) {
+                console.log('qrcode library not available:', error);
+            }
+            
+            // Fallback: Show URL only
+            showFallback();
+        }
+        
+        function showFallback() {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = `
+                <div class="fallback-qr">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">QR Code</div>
+                    <div style="font-size: 10px;">Scan URL:</div>
+                    <div style="font-size: 9px; word-break: break-all; padding: 10px; background: white; border-radius: 5px; margin-top: 5px;">
+                        ${currentUrl}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Test connectivity
+        async function testConnectivity() {
+            const status = document.getElementById('status');
+            status.className = 'status info';
+            status.innerHTML = 'Testing connectivity...';
+            
+            try {
+                const response = await fetch(`${currentUrl}/api/stats`);
+                if (response.ok) {
+                    status.className = 'status success';
+                    status.innerHTML = 'Connected! Backend is ready for packet capture.';
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (error) {
+                status.className = 'status info';
+                status.innerHTML = 'Make sure both frontend (port 3000) and backend (port 8000) are running.';
+            }
+        }
+        
+        // Generate test traffic
+        function generateTraffic() {
+            const status = document.getElementById('status');
+            status.className = 'status info';
+            status.innerHTML = 'Generating test traffic...';
+            
+            const requests = [
+                fetch(`${currentUrl}/api/stats`),
+                fetch(`${currentUrl}/api/interfaces`),
+                fetch(`${currentUrl}/api/packets?limit=10`)
+            ];
+            
+            Promise.allSettled(requests).then(results => {
+                const successful = results.filter(r => r.status === 'fulfilled').length;
+                status.className = 'status success';
+                status.innerHTML = `Generated ${successful} test requests. Check packet capture!`;
+            });
+        }
+        
+        // Generate QR code when page loads
+        window.addEventListener('load', function() {
+            setTimeout(generateQRCode, 500);
+        });
+        
+        // Auto-test connectivity
+        setTimeout(testConnectivity, 2000);
+    </script>
+</body>
+</html>

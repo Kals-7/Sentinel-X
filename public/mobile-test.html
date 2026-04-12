@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel-X Mobile Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        #qrcode {
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            display: inline-block;
+        }
+        
+        .url-display {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #495057;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 5px;
+        }
+        
+        .instructions h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #555;
+        }
+        
+        .instructions li {
+            margin: 8px 0;
+        }
+        
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .test-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        
+        .test-btn:hover {
+            background: #45a049;
+        }
+        
+        .test-btn.secondary {
+            background: #ff9800;
+        }
+        
+        .test-btn.secondary:hover {
+            background: #f57c00;
+        }
+        
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .device-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .test-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> Sentinel-X </h1>
+        <p class="subtitle">Mobile Test & Packet Capture</p>
+        
+        <div id="qrcode"></div>
+        
+        <div class="url-display" id="url-display">
+            Generating QR Code...
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Test Packet Capture:</h3>
+            <ol>
+                <li>Scan this QR code with your mobile device</li>
+                <li>Open the Sentinel-X application in your mobile browser</li>
+                <li>Click "Start" to begin packet capture</li>
+                <li>Generate some network traffic (browse websites, use apps)</li>
+                <li>Check the dashboard for captured packets</li>
+                <li>Verify real-time updates are working</li>
+            </ol>
+        </div>
+        
+        <div class="test-buttons">
+            <button class="test-btn" onclick="testConnectivity()">Test Connectivity</button>
+            <button class="test-btn secondary" onclick="generateTraffic()">Generate Test Traffic</button>
+        </div>
+        
+        <div id="status" class="status info">
+            Ready to test packet capture from mobile device
+        </div>
+        
+        <div class="device-info" id="device-info">
+            <strong>Device Info:</strong> Detecting...
+        </div>
+    </div>
+
+    <script>
+        // Get the current URL
+        const currentUrl = window.location.origin;
+        
+        // Generate QR Code
+        QRCode.toCanvas(document.getElementById('qrcode'), currentUrl, {
+            width: 256,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        }, function (error) {
+            if (error) console.error(error);
+        });
+        
+        // Display URL
+        document.getElementById('url-display').innerHTML = `
+            <strong>Scan to access:</strong><br>
+            ${currentUrl}
+        `;
+        
+        // Test connectivity to backend
+        async function testConnectivity() {
+            const status = document.getElementById('status');
+            status.className = 'status info';
+            status.innerHTML = 'Testing connectivity...';
+            
+            try {
+                const response = await fetch(`${currentUrl}/api/stats`);
+                if (response.ok) {
+                    const data = await response.json();
+                    status.className = 'status success';
+                    status.innerHTML = 'Connected! Backend is responding. Ready for packet capture.';
+                } else {
+                    throw new Error('Backend not responding');
+                }
+            } catch (error) {
+                status.className = 'status info';
+                status.innerHTML = 'Backend connection failed. Make sure the server is running on port 8000.';
+            }
+        }
+        
+        // Generate test traffic
+        function generateTraffic() {
+            const status = document.getElementById('status');
+            status.className = 'status info';
+            status.innerHTML = 'Generating test network traffic...';
+            
+            // Generate multiple requests to create traffic
+            const requests = [
+                fetch(`${currentUrl}/api/stats`),
+                fetch(`${currentUrl}/api/interfaces`),
+                fetch(`${currentUrl}/api/packets?limit=10`),
+                fetch(`${currentUrl}/api/capture/status`)
+            ];
+            
+            Promise.allSettled(requests).then(results => {
+                const successful = results.filter(r => r.status === 'fulfilled').length;
+                status.className = 'status success';
+                status.innerHTML = `Generated ${successful} test requests. Check the dashboard for captured packets!`;
+            });
+        }
+        
+        // Display device info
+        function displayDeviceInfo() {
+            const deviceInfo = document.getElementById('device-info');
+            const userAgent = navigator.userAgent;
+            let deviceType = 'Unknown';
+            
+            if (/Mobile|Android|iPhone|iPad/.test(userAgent)) {
+                deviceType = 'Mobile Device';
+            } else if (/Tablet/.test(userAgent)) {
+                deviceType = 'Tablet';
+            } else {
+                deviceType = 'Desktop';
+            }
+            
+            deviceInfo.innerHTML = `
+                <strong>Device Info:</strong> ${deviceType}<br>
+                <strong>Browser:</strong> ${navigator.userAgent.split(' ')[0]}<br>
+                <strong>Platform:</strong> ${navigator.platform}
+            `;
+        }
+        
+        // Initialize
+        displayDeviceInfo();
+        
+        // Auto-test connectivity
+        setTimeout(testConnectivity, 1000);
+    </script>
+</body>
+</html>
