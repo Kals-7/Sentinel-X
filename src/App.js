@@ -5,12 +5,6 @@ import ChartsSection from './components/ChartsSection';
 import PacketFeed from './components/PacketFeed';
 import PerformanceMetrics from './components/PerformanceMetrics';
 import AdvancedFilters from './components/AdvancedFilters';
-import SecurityAssistant from './components/SecurityAssistant';
-import UserManagement from './components/UserManagement';
-import SystemHealth from './components/SystemHealth';
-import AuditLogs from './components/AuditLogs';
-import SettingsPanel from './components/Settings';
-import QRCodeDisplay from './components/QRCodeDisplay';
 import { useTheme } from './hooks/useTheme';
 
 function App() {
@@ -25,12 +19,7 @@ function App() {
     traffic_over_time: []
   });
     const [selectedInterface, setSelectedInterface] = useState('eth0');
-  const [interfaces, setInterfaces] = useState([
-    {id: 'eth0', name: 'Ethernet', description: 'Wired network connection'},
-    {id: 'lo', name: 'Localhost', description: 'Local loopback interface'},
-    {id: 'wlan0', name: 'WiFi', description: 'Wireless network connection'}
-  ]);
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [interfaces, setInterfaces] = useState(['eth0', 'lo', 'wlan0']);
   
   // Filter state with URL persistence
   const [filters, setFilters] = useState(() => {
@@ -214,8 +203,7 @@ function App() {
       .then(data => {
         if (data.interfaces && data.interfaces.length > 0) {
           setInterfaces(data.interfaces);
-          // Set the first interface ID as selected, not the whole object
-          setSelectedInterface(data.interfaces[0].id);
+          setSelectedInterface(data.interfaces[0]);
         }
       })
       .catch(err => console.error('Failed to fetch interfaces:', err));
@@ -287,35 +275,22 @@ function App() {
         theme={theme}
         isConnected={isConnected}
         onReset={handleReset}
-        currentView={currentView}
-        onViewChange={setCurrentView}
       />
       
-      <main className="container mx-auto px-4 py-8">
-        {currentView === 'dashboard' && (
-          <div className="space-y-8">
-            <MetricCards stats={stats} />
-            
-            <PerformanceMetrics performance={performance} />
-            
-            <ChartsSection stats={stats} />
-            
-            <AdvancedFilters 
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-              onReset={handleResetFilters}
-            />
-            
-            <PacketFeed filters={filters} />
-          </div>
-        )}
+      <main className="container mx-auto px-4 py-8 space-y-8">
+        <MetricCards stats={stats} />
         
-        {currentView === 'security' && <SecurityAssistant />}
-        {currentView === 'users' && <UserManagement />}
-        {currentView === 'health' && <SystemHealth />}
-        {currentView === 'audit' && <AuditLogs />}
-        {currentView === 'settings' && <SettingsPanel />}
-        {currentView === 'qrcode' && <QRCodeDisplay />}
+        <PerformanceMetrics performance={performance} />
+        
+        <ChartsSection stats={stats} />
+        
+        <AdvancedFilters 
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          onReset={handleResetFilters}
+        />
+        
+        <PacketFeed filters={filters} />
       </main>
     </div>
   );
